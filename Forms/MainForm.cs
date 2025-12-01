@@ -15,7 +15,7 @@ namespace NuevoAPPwindowsforms.Forms
             _data = new AppData();
             this.Text = "Menú Principal";
             this.Width = 350;
-            this.Height = 200;
+            this.Height = 250;
             this.StartPosition = FormStartPosition.CenterScreen;
             InitializeMenuUI();
         }
@@ -74,9 +74,14 @@ namespace NuevoAPPwindowsforms.Forms
                     form.ShowDialog();
                 }
             };
+            btnEmpleados.Click += (s, e) => {
+                var form = new EmpleadosForm();
+                form.ShowDialog();
+            };
             this.Controls.Add(btnRegistro);
             this.Controls.Add(btnVenta);
             this.Controls.Add(btnEditarCliente);
+            this.Controls.Add(btnEmpleados);
         }
     }
 }

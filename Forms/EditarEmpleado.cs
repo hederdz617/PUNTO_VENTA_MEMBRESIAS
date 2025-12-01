@@ -4,21 +4,20 @@ using NuevoAPPwindowsforms.Models;
 
 namespace NuevoAPPwindowsforms.Forms
 {
-    public class EditarClienteForm : Form
+    public class EditarEmpleadoForm : Form
     {
         private TextBox txtNombre, txtApellido, txtCorreo, txtEdad, txtTelefono;
         private Button btnGuardar, btnEditarHuella, btnVerificarHuella;
-        private int _clienteId;
-
-        public EditarClienteForm(int clienteId)
+        private int _empleadoId;
+        public EditarEmpleadoForm(int empleadoId)
         {
-            _clienteId = clienteId;
-            this.Text = "Editar Cliente";
+            _empleadoId = empleadoId;
+            this.Text = "Editar Empleado";
             this.Width = 400;
             this.Height = 350;
             this.StartPosition = FormStartPosition.CenterScreen;
             InitializeUI();
-            CargarDatosCliente();
+            CargarDatosEmpleado();
         }
 
         private void InitializeUI()

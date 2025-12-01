@@ -59,6 +59,14 @@ CREATE TABLE IF NOT EXISTS Membresias (
     Activo INTEGER NOT NULL DEFAULT 1,
     FOREIGN KEY (Id_Cliente) REFERENCES Cliente(Id)
 );
+CREATE TABLE IF NOT EXISTS Empleado (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    Nombre TEXT,
+    Apellido TEXT,
+    Correo TEXT,
+    Edad INTEGER,
+    Telefono TEXT
+);
 ";
                 cmd.ExecuteNonQuery();
             }
@@ -69,6 +77,22 @@ CREATE TABLE IF NOT EXISTS Membresias (
             return new SQLiteConnection(ConnectionString);
         }
 
+        public static int InsertEmpleado(string nombre, string apellido, string correo, int edad, string telefono)
+        {
+            using (var conn = new SQLiteConnection(ConnectionString))
+            {
+                conn.Open();
+                var cmd = conn.CreateCommand();
+                cmd.CommandText = @"INSERT INTO Empleado (Nombre, Apellido, Correo, Edad, Telefono) VALUES (@nombre, @apellido, @correo, @edad, @telefono); SELECT last_insert_rowid();";
+                cmd.Parameters.AddWithValue("@nombre", nombre);
+                cmd.Parameters.AddWithValue("@apellido", apellido);
+                cmd.Parameters.AddWithValue("@correo", correo);
+                cmd.Parameters.AddWithValue("@edad", edad);
+                cmd.Parameters.AddWithValue("@telefono", telefono);
+                var result = cmd.ExecuteScalar();
+                return Convert.ToInt32(result);
+            }
+        }
         public static int InsertCliente(string nombre, string apellido, string correo, int edad, string telefono)
         {
             using (var conn = new SQLiteConnection(ConnectionString))
