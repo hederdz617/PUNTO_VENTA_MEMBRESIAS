@@ -157,14 +157,18 @@ namespace NuevoAPPwindowsforms.Forms
                 MessageBox.Show("Primero debe guardar los datos del cliente.", "Atención");
                 return;
             }
+            MainForm.Instance?.OcultarVerificadorTray();
             var form = new EnrollmentForm(_data, _ultimoClienteId);
             form.ShowDialog();
+            MainForm.Instance?.MostrarVerificadorTray();
         }
 
         private void BtnVerificar_Click(object sender, EventArgs e)
         {
+            MainForm.Instance?.OcultarVerificadorTray();
             var form = new VerificationForm(_data);
             form.ShowDialog();
+            MainForm.Instance?.MostrarVerificadorTray();
         }
     }
 }

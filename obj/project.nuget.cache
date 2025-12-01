@@ -1,12 +1,30 @@
 {
   "version": 2,
-  "dgSpecHash": "wHDVUUtSfYs=",
+  "dgSpecHash": "Ld3udpbnqFw=",
   "success": true,
   "projectFilePath": "D:\\RegistroClientes\\Nuevo APPwindowsforms\\NuevoAPPwindowsforms.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\Heder\\.nuget\\packages\\runtime.android-arm.runtime.native.system.io.ports\\10.0.0\\runtime.android-arm.runtime.native.system.io.ports.10.0.0.nupkg.sha512",
+    "C:\\Users\\Heder\\.nuget\\packages\\runtime.android-arm64.runtime.native.system.io.ports\\10.0.0\\runtime.android-arm64.runtime.native.system.io.ports.10.0.0.nupkg.sha512",
+    "C:\\Users\\Heder\\.nuget\\packages\\runtime.android-x64.runtime.native.system.io.ports\\10.0.0\\runtime.android-x64.runtime.native.system.io.ports.10.0.0.nupkg.sha512",
+    "C:\\Users\\Heder\\.nuget\\packages\\runtime.android-x86.runtime.native.system.io.ports\\10.0.0\\runtime.android-x86.runtime.native.system.io.ports.10.0.0.nupkg.sha512",
+    "C:\\Users\\Heder\\.nuget\\packages\\runtime.linux-arm.runtime.native.system.io.ports\\10.0.0\\runtime.linux-arm.runtime.native.system.io.ports.10.0.0.nupkg.sha512",
+    "C:\\Users\\Heder\\.nuget\\packages\\runtime.linux-arm64.runtime.native.system.io.ports\\10.0.0\\runtime.linux-arm64.runtime.native.system.io.ports.10.0.0.nupkg.sha512",
+    "C:\\Users\\Heder\\.nuget\\packages\\runtime.linux-bionic-arm64.runtime.native.system.io.ports\\10.0.0\\runtime.linux-bionic-arm64.runtime.native.system.io.ports.10.0.0.nupkg.sha512",
+    "C:\\Users\\Heder\\.nuget\\packages\\runtime.linux-bionic-x64.runtime.native.system.io.ports\\10.0.0\\runtime.linux-bionic-x64.runtime.native.system.io.ports.10.0.0.nupkg.sha512",
+    "C:\\Users\\Heder\\.nuget\\packages\\runtime.linux-musl-arm.runtime.native.system.io.ports\\10.0.0\\runtime.linux-musl-arm.runtime.native.system.io.ports.10.0.0.nupkg.sha512",
+    "C:\\Users\\Heder\\.nuget\\packages\\runtime.linux-musl-arm64.runtime.native.system.io.ports\\10.0.0\\runtime.linux-musl-arm64.runtime.native.system.io.ports.10.0.0.nupkg.sha512",
+    "C:\\Users\\Heder\\.nuget\\packages\\runtime.linux-musl-x64.runtime.native.system.io.ports\\10.0.0\\runtime.linux-musl-x64.runtime.native.system.io.ports.10.0.0.nupkg.sha512",
+    "C:\\Users\\Heder\\.nuget\\packages\\runtime.linux-x64.runtime.native.system.io.ports\\10.0.0\\runtime.linux-x64.runtime.native.system.io.ports.10.0.0.nupkg.sha512",
+    "C:\\Users\\Heder\\.nuget\\packages\\runtime.maccatalyst-arm64.runtime.native.system.io.ports\\10.0.0\\runtime.maccatalyst-arm64.runtime.native.system.io.ports.10.0.0.nupkg.sha512",
+    "C:\\Users\\Heder\\.nuget\\packages\\runtime.maccatalyst-x64.runtime.native.system.io.ports\\10.0.0\\runtime.maccatalyst-x64.runtime.native.system.io.ports.10.0.0.nupkg.sha512",
+    "C:\\Users\\Heder\\.nuget\\packages\\runtime.native.system.io.ports\\10.0.0\\runtime.native.system.io.ports.10.0.0.nupkg.sha512",
+    "C:\\Users\\Heder\\.nuget\\packages\\runtime.osx-arm64.runtime.native.system.io.ports\\10.0.0\\runtime.osx-arm64.runtime.native.system.io.ports.10.0.0.nupkg.sha512",
+    "C:\\Users\\Heder\\.nuget\\packages\\runtime.osx-x64.runtime.native.system.io.ports\\10.0.0\\runtime.osx-x64.runtime.native.system.io.ports.10.0.0.nupkg.sha512",
     "C:\\Users\\Heder\\.nuget\\packages\\stub.system.data.sqlite.core.netstandard\\1.0.119\\stub.system.data.sqlite.core.netstandard.1.0.119.nupkg.sha512",
     "C:\\Users\\Heder\\.nuget\\packages\\system.data.sqlite\\2.0.2\\system.data.sqlite.2.0.2.nupkg.sha512",
-    "C:\\Users\\Heder\\.nuget\\packages\\system.data.sqlite.core\\1.0.119\\system.data.sqlite.core.1.0.119.nupkg.sha512"
+    "C:\\Users\\Heder\\.nuget\\packages\\system.data.sqlite.core\\1.0.119\\system.data.sqlite.core.1.0.119.nupkg.sha512",
+    "C:\\Users\\Heder\\.nuget\\packages\\system.io.ports\\10.0.0\\system.io.ports.10.0.0.nupkg.sha512"
   ],
   "logs": []
 }

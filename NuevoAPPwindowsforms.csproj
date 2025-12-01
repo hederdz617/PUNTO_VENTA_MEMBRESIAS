@@ -25,6 +25,7 @@
   <ItemGroup>
     <PackageReference Include="System.Data.SQLite" Version="2.0.2" />
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.119" />
+    <PackageReference Include="System.IO.Ports" Version="10.0.0" />
   </ItemGroup>
   <ItemGroup>
     <None Update="runtimes\win-x64\native\e_sqlite3.dll">

@@ -58,6 +58,10 @@
             "System.Data.SQLite.Core": {
               "target": "Package",
               "version": "[1.0.119, )"
+            },
+            "System.IO.Ports": {
+              "target": "Package",
+              "version": "[10.0.0, )"
             }
           },
           "imports": [

@@ -7,8 +7,11 @@ namespace NuevoAPPwindowsforms.Forms
     public partial class MainForm : Form
     {
         private readonly AppData _data;
+        private VerificadorTrayForm verificadorTray;
+        public static MainForm Instance { get; private set; }
         public MainForm()
         {
+            Instance = this;
             _data = new AppData();
             this.Text = "Menú Principal";
             this.Width = 350;
@@ -17,12 +20,38 @@ namespace NuevoAPPwindowsforms.Forms
             InitializeMenuUI();
         }
 
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            verificadorTray = new VerificadorTrayForm();
+            verificadorTray.Show();
+            verificadorTray.Hide(); // Mantenerlo en bandeja, no visible
+        }
+
+        public void OcultarVerificadorTray()
+        {
+            if (verificadorTray != null && !verificadorTray.IsDisposed)
+                verificadorTray.Close();
+        }
+
+        public void MostrarVerificadorTray()
+        {
+            if (verificadorTray == null || verificadorTray.IsDisposed)
+            {
+                verificadorTray = new VerificadorTrayForm();
+                verificadorTray.Show();
+                verificadorTray.Hide();
+            }
+
+        }
+
         private void InitializeMenuUI()
         {
             var btnRegistro = new Button { Text = "Registro", Left = 50, Top = 50, Width = 100, Height = 50 };
             var btnVenta = new Button { Text = "Venta", Left = 180, Top = 50, Width = 100, Height = 50 };
             var btnEditarCliente = new Button { Text = "Editar Cliente", Left = 180, Top = 120, Width = 100, Height = 50 };
-            btnRegistro.Font = btnVenta.Font = btnEditarCliente.Font = new System.Drawing.Font("Segoe UI", 14);
+            var btnEmpleados = new Button { Text = "Empleados", Left = 50, Top = 120, Width = 100, Height = 50 };
+            btnRegistro.Font = btnVenta.Font = btnEditarCliente.Font = btnEmpleados.Font = new System.Drawing.Font("Segoe UI", 14);
             btnRegistro.Click += (s, e) => {
                 var form = new RegistroForm(_data);
                 form.ShowDialog();

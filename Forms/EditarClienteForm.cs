@@ -121,8 +121,17 @@ namespace NuevoAPPwindowsforms.Forms
             // Eliminar huella anterior
             Services.DatabaseService.EliminarHuellasPorCliente(_clienteId);
             var data = new AppData();
+            NuevoAPPwindowsforms.Forms.MainForm.Instance?.OcultarVerificadorTray();
             var form = new EnrollmentForm(data, _clienteId);
             form.ShowDialog();
+            // Validar duplicidad después de capturar la nueva huella
+            if (data.FeatureSet != null && EsHuellaDuplicada(data.FeatureSet))
+            {
+                MessageBox.Show("Esta huella ya está registrada para otro cliente.", "Huella duplicada");
+                // Eliminar la huella recién guardada
+                Services.DatabaseService.EliminarHuellasPorCliente(_clienteId);
+            }
+            NuevoAPPwindowsforms.Forms.MainForm.Instance?.MostrarVerificadorTray();
         }
 
         private void BtnVerificarHuella_Click(object sender, EventArgs e)
@@ -147,8 +156,38 @@ namespace NuevoAPPwindowsforms.Forms
                     }
                 }
             }
+            NuevoAPPwindowsforms.Forms.MainForm.Instance?.OcultarVerificadorTray();
             var form = new VerificationForm(data);
             form.ShowDialog();
+            NuevoAPPwindowsforms.Forms.MainForm.Instance?.MostrarVerificadorTray();
+        }
+
+        private bool EsHuellaDuplicada(DPFP.FeatureSet featureSet)
+        {
+            using (var conn = Services.DatabaseService.GetConnection())
+            {
+                conn.Open();
+                var cmd = conn.CreateCommand();
+                // Excluir las huellas del cliente actual
+                cmd.CommandText = "SELECT ClienteId, Template FROM Huella WHERE ClienteId != @id";
+                cmd.Parameters.AddWithValue("@id", _clienteId);
+                using (var reader = cmd.ExecuteReader())
+                {
+                    var verifier = new DPFP.Verification.Verification();
+                    var res = new DPFP.Verification.Verification.Result();
+                    while (reader.Read())
+                    {
+                        byte[] templateBytes = (byte[])reader["Template"];
+                        var templateDB = new DPFP.Template(new System.IO.MemoryStream(templateBytes));
+                        verifier.Verify(featureSet, templateDB, ref res);
+                        if (res.Verified)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
         }
     }
 }
