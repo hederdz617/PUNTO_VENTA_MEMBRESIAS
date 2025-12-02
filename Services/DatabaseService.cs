@@ -67,6 +67,13 @@ CREATE TABLE IF NOT EXISTS Empleado (
     Edad INTEGER,
     Telefono TEXT
 );
+CREATE TABLE IF NOT EXISTS HuellaEmpleado (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    EmpleadoId INTEGER,
+    Dedo TEXT,
+    Template BLOB,
+    FOREIGN KEY (EmpleadoId) REFERENCES Empleado(Id)
+);
 ";
                 cmd.ExecuteNonQuery();
             }
@@ -248,6 +255,32 @@ CREATE TABLE IF NOT EXISTS Empleado (
                 var cmd = conn.CreateCommand();
                 cmd.CommandText = "DELETE FROM Huella WHERE ClienteId = @clienteId;";
                 cmd.Parameters.AddWithValue("@clienteId", clienteId);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public static void EliminarHuellasPorEmpleado(int empleadoId)
+        {
+            using (var conn = new SQLiteConnection(ConnectionString))
+            {
+                conn.Open();
+                var cmd = conn.CreateCommand();
+                cmd.CommandText = "DELETE FROM HuellaEmpleado WHERE EmpleadoId = @empleadoId;";
+                cmd.Parameters.AddWithValue("@empleadoId", empleadoId);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public static void InsertHuellaEmpleado(int empleadoId, string dedo, byte[] template)
+        {
+            using (var conn = new SQLiteConnection(ConnectionString))
+            {
+                conn.Open();
+                var cmd = conn.CreateCommand();
+                cmd.CommandText = @"INSERT INTO HuellaEmpleado (EmpleadoId, Dedo, Template) VALUES (@empleadoId, @dedo, @template);";
+                cmd.Parameters.AddWithValue("@empleadoId", empleadoId);
+                cmd.Parameters.AddWithValue("@dedo", dedo);
+                cmd.Parameters.AddWithValue("@template", template);
                 cmd.ExecuteNonQuery();
             }
         }

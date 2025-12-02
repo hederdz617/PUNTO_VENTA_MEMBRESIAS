@@ -13,6 +13,9 @@ namespace NuevoAPPwindowsforms.Models
         public int FalseAcceptRate = 0;
         public DPFP.Template[] Templates = new DPFP.Template[MaxFingers];
 
+        // Propiedad para identificar cliente por huella
+        public int ClienteId { get; set; } = -1;
+
         public delegate void OnChangeHandler();
         public event OnChangeHandler OnChange;
         public void Update() { OnChange?.Invoke(); }

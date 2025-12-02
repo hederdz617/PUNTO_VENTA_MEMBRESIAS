@@ -57,14 +57,14 @@ namespace NuevoAPPwindowsforms.Forms
             this.Controls.Add(btnVerificarHuella);
         }
 
-        private void CargarDatosCliente()
+        private void CargarDatosEmpleado()
         {
             using (var conn = Services.DatabaseService.GetConnection())
             {
                 conn.Open();
                 var cmd = conn.CreateCommand();
-                cmd.CommandText = "SELECT Nombre, Apellido, Correo, Edad, Telefono FROM Cliente WHERE Id = @id";
-                cmd.Parameters.AddWithValue("@id", _clienteId);
+                cmd.CommandText = "SELECT Nombre, Apellido, Correo, Edad, Telefono FROM Empleado WHERE Id = @id";
+                cmd.Parameters.AddWithValue("@id", _empleadoId);
                 using (var reader = cmd.ExecuteReader())
                 {
                     if (reader.Read())
@@ -97,13 +97,13 @@ namespace NuevoAPPwindowsforms.Forms
                 {
                     conn.Open();
                     var cmd = conn.CreateCommand();
-                    cmd.CommandText = "UPDATE Cliente SET Nombre = @nombre, Apellido = @apellido, Correo = @correo, Edad = @edad, Telefono = @telefono WHERE Id = @id";
+                    cmd.CommandText = "UPDATE Empleado SET Nombre = @nombre, Apellido = @apellido, Correo = @correo, Edad = @edad, Telefono = @telefono WHERE Id = @id";
                     cmd.Parameters.AddWithValue("@nombre", nombre);
                     cmd.Parameters.AddWithValue("@apellido", apellido);
                     cmd.Parameters.AddWithValue("@correo", correo);
                     cmd.Parameters.AddWithValue("@edad", edad);
                     cmd.Parameters.AddWithValue("@telefono", telefono);
-                    cmd.Parameters.AddWithValue("@id", _clienteId);
+                    cmd.Parameters.AddWithValue("@id", _empleadoId);
                     cmd.ExecuteNonQuery();
                 }
                 MessageBox.Show("Datos actualizados correctamente.", "Éxito");
@@ -118,33 +118,24 @@ namespace NuevoAPPwindowsforms.Forms
         private void BtnEditarHuella_Click(object sender, EventArgs e)
         {
             // Eliminar huella anterior
-            Services.DatabaseService.EliminarHuellasPorCliente(_clienteId);
+            Services.DatabaseService.EliminarHuellasPorEmpleado(_empleadoId);
             var data = new AppData();
             NuevoAPPwindowsforms.Forms.MainForm.Instance?.OcultarVerificadorTray();
-            var form = new EnrollmentForm(data, _clienteId);
+            var form = new EnrollmentForm(data, _empleadoId, true); // true = esEmpleado
             form.ShowDialog();
-            /*
-            // Validar duplicidad después de capturar la nueva huella (comentada para evitar errores)
-            if (data.FeatureSet != null && EsHuellaDuplicada(data.FeatureSet))
-            {
-                MessageBox.Show("Esta huella ya está registrada para otro cliente.", "Huella duplicada");
-                // Eliminar la huella recién guardada
-                Services.DatabaseService.EliminarHuellasPorCliente(_clienteId);
-            }
-            */
             NuevoAPPwindowsforms.Forms.MainForm.Instance?.MostrarVerificadorTray();
         }
 
         private void BtnVerificarHuella_Click(object sender, EventArgs e)
         {
-            // Cargar la huella del cliente desde la base de datos
+            // Cargar la huella del empleado desde la base de datos
             var data = new AppData();
             using (var conn = Services.DatabaseService.GetConnection())
             {
                 conn.Open();
                 var cmd = conn.CreateCommand();
-                cmd.CommandText = "SELECT Template FROM Huella WHERE ClienteId = @clienteId LIMIT 1;";
-                cmd.Parameters.AddWithValue("@clienteId", _clienteId);
+                cmd.CommandText = "SELECT Template FROM HuellaEmpleado WHERE EmpleadoId = @empleadoId LIMIT 1;";
+                cmd.Parameters.AddWithValue("@empleadoId", _empleadoId);
                 using (var reader = cmd.ExecuteReader())
                 {
                     if (reader.Read())

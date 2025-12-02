@@ -75,6 +75,10 @@ namespace NuevoAPPwindowsforms.Forms
             btnRevisarActivo = new Button { Text = "Revisar Activo", Left = 140, Top = 140, Width = 100 };
             btnRevisarActivo.Click += BtnRevisarActivo_Click;
 
+            // Botón para buscar por huella
+            var btnBuscarPorHuella = new Button { Text = "Buscar por huella", Left = 320, Top = 100, Width = 120 };
+            btnBuscarPorHuella.Click += BtnBuscarPorHuella_Click;
+
             this.Controls.Add(lblBuscar);
             this.Controls.Add(txtBuscar);
             this.Controls.Add(cmbClientes);
@@ -89,6 +93,7 @@ namespace NuevoAPPwindowsforms.Forms
             this.Controls.Add(cmbProducto);
             this.Controls.Add(btnVenta);
             this.Controls.Add(btnRevisarActivo);
+            this.Controls.Add(btnBuscarPorHuella);
         }
 
         private class ClienteItem
@@ -235,6 +240,31 @@ namespace NuevoAPPwindowsforms.Forms
                     MessageBox.Show("El cliente no tiene membresía activa.", "Membresía");
                 }
                 MessageBox.Show($"Venta registrada con éxito. ID Venta: {idVenta}", "Venta");
+                // Enviar mensaje a Telegram
+                string nombreCliente = "";
+                using (var conn = Services.DatabaseService.GetConnection())
+                {
+                    conn.Open();
+                    var cmd = conn.CreateCommand();
+                    cmd.CommandText = "SELECT Nombre, Apellido FROM Cliente WHERE Id = @id";
+                    cmd.Parameters.AddWithValue("@id", _clienteSeleccionadoId);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            nombreCliente = reader["Nombre"] + " " + reader["Apellido"];
+                        }
+                    }
+                }
+                // Construir lista de productos vendidos
+                var productosList = new System.Collections.Generic.List<string>();
+                foreach (var item in lstCarrito.Items)
+                {
+                    productosList.Add(item.ToString());
+                }
+                string productos = string.Join(", ", productosList);
+                string mensaje = $"Venta registrada:\nCliente: {nombreCliente}\nProductos: {productos}\nTotal: ${total:F2}\nFecha y hora: {fechaVenta:yyyy-MM-dd HH:mm:ss}";
+                _ = NuevoAPPwindowsforms.Services.TelegramService.EnviarMensajeAsync(mensaje);
                 lstCarrito.Items.Clear();
                 total = 0;
                 lblTotal.Text = "Total: $0.00";
@@ -262,6 +292,40 @@ namespace NuevoAPPwindowsforms.Forms
             else
             {
                 MessageBox.Show("Seleccione un cliente de la lista.", "Atención");
+            }
+        }
+
+        private void BtnBuscarPorHuella_Click(object sender, EventArgs e)
+        {
+            var data = new NuevoAPPwindowsforms.Models.AppData();
+            var form = new VerificationForm(data);
+            if (form.ShowDialog() == DialogResult.OK)
+            {
+                // Buscar cliente por huella (asumiendo que VerificationForm pone el ID en data.ClienteId)
+                if (data.ClienteId > 0)
+                {
+                    _clienteSeleccionadoId = data.ClienteId;
+                    // Buscar nombre completo
+                    using (var conn = Services.DatabaseService.GetConnection())
+                    {
+                        conn.Open();
+                        var cmd = conn.CreateCommand();
+                        cmd.CommandText = "SELECT Nombre || ' ' || Apellido AS NombreCompleto FROM Cliente WHERE Id = @id";
+                        cmd.Parameters.AddWithValue("@id", _clienteSeleccionadoId);
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                lblClienteSeleccionado.Text = $"Cliente: {reader["NombreCompleto"]}";
+                                btnVenta.Enabled = true;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("No se encontró cliente para la huella.", "Búsqueda por huella");
+                }
             }
         }
     }

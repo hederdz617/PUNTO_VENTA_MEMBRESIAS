@@ -10,11 +10,13 @@ namespace NuevoAPPwindowsforms.Forms
         public AppData Data { get; }
         public EnrollmentControl EnrollmentControl { get; private set; }
         private int _clienteId = -1;
+        private bool _esEmpleado = false;
 
-        public EnrollmentForm(AppData data, int clienteId = -1)
+        public EnrollmentForm(AppData data, int clienteId = -1, bool esEmpleado = false)
         {
             Data = data;
             _clienteId = clienteId;
+            _esEmpleado = esEmpleado;
             this.Width = 500;
             this.Height = 500;
             this.StartPosition = FormStartPosition.CenterScreen;
@@ -66,14 +68,17 @@ namespace NuevoAPPwindowsforms.Forms
             Data.Update();
             MessageBox.Show($"Dedo {finger} enrollado correctamente.", "Éxito");
 
-            // Guardar automáticamente el template en la base de datos si hay cliente
+            // Guardar automáticamente el template en la base de datos
             if (_clienteId > 0 && template != null)
             {
                 using (var ms = new System.IO.MemoryStream())
                 {
                     template.Serialize(ms);
                     byte[] templateBytes = ms.ToArray();
-                    NuevoAPPwindowsforms.Services.DatabaseService.InsertHuella(_clienteId, $"Dedo {finger}", templateBytes);
+                    if (_esEmpleado)
+                        NuevoAPPwindowsforms.Services.DatabaseService.InsertHuellaEmpleado(_clienteId, $"Dedo {finger}", templateBytes);
+                    else
+                        NuevoAPPwindowsforms.Services.DatabaseService.InsertHuella(_clienteId, $"Dedo {finger}", templateBytes);
                 }
                 MessageBox.Show("Huella guardada automáticamente en la base de datos.", "Éxito");
             }

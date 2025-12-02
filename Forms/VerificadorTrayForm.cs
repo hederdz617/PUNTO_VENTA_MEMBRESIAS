@@ -127,17 +127,47 @@ namespace NuevoAPPwindowsforms.Forms
                             else
                             {
                                 trayIcon.ShowBalloonTip(3000, "Acceso denegado", $"{nombre} {apellido}\nMembresía inactiva", ToolTipIcon.Warning);
-                                // Se eliminó el MessageBox de membresía inactiva
                             }
                             encontrado = true;
                             break;
                         }
                     }
-                    if (!encontrado)
+                    if (encontrado)
+                        return;
+                }
+                // Buscar en empleados si no se encontró en clientes
+                var cmdEmp = conn.CreateCommand();
+                cmdEmp.CommandText = "SELECT h.EmpleadoId, h.Dedo, h.Template, e.Nombre, e.Apellido FROM HuellaEmpleado h JOIN Empleado e ON h.EmpleadoId = e.Id";
+                using (var readerEmp = cmdEmp.ExecuteReader())
+                {
+                    var resEmp = new Verification.Result();
+                    int empleadoId = -1;
+                    string nombreEmp = "", apellidoEmp = "", dedoEmp = "";
+                    while (readerEmp.Read())
                     {
-                        trayIcon.ShowBalloonTip(2000, "Verificador", "No se encontró coincidencia.", ToolTipIcon.Warning);
+                        empleadoId = readerEmp.GetInt32(0);
+                        dedoEmp = readerEmp.GetString(1);
+                        byte[] templateGuardado = (byte[])readerEmp[2];
+                        nombreEmp = readerEmp[3].ToString();
+                        apellidoEmp = readerEmp[4].ToString();
+                        var templateDB = new DPFP.Template(new MemoryStream(templateGuardado));
+                        verifier.Verify(features, templateDB, ref resEmp);
+                        if (resEmp.Verified)
+                        {
+                            trayIcon.ShowBalloonTip(3000, "Acceso permitido (Empleado)", $"{nombreEmp} {apellidoEmp}", ToolTipIcon.Info);
+                            // Enviar mensaje a Telegram
+                            string mensaje = $"Empleado ingresó: {nombreEmp} {apellidoEmp}\nFecha y hora: {DateTime.Now:yyyy-MM-dd HH:mm:ss}";
+                            _ = NuevoAPPwindowsforms.Services.TelegramService.EnviarMensajeAsync(mensaje);
+                            // Control de torniquete
+                            if (arduinoPort != null && arduinoPort.IsOpen)
+                            {
+                                try { arduinoPort.WriteLine("OPEN"); } catch { }
+                            }
+                            return;
+                        }
                     }
                 }
+                trayIcon.ShowBalloonTip(2000, "Verificador", "No se encontró coincidencia.", ToolTipIcon.Warning);
             }
         }
 

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("NuevoAPPwindowsforms")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+75d463136c429923864c9686fd76f147fb0bdf59")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1fa902f982149eb0766aa8132f9881f3d01059e2")]
 [assembly: System.Reflection.AssemblyProductAttribute("NuevoAPPwindowsforms")]
 [assembly: System.Reflection.AssemblyTitleAttribute("NuevoAPPwindowsforms")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

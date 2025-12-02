@@ -143,6 +143,9 @@ namespace NuevoAPPwindowsforms.Forms
                 _ultimoClienteId = clienteId;
                 btnEnrollar.Enabled = true;
                 MessageBox.Show($"Cliente guardado con ID: {clienteId}. Ahora puede enrollar la huella.", "Registro exitoso");
+                // Enviar mensaje a Telegram
+                string mensaje = $"Nuevo cliente registrado:\nNombre: {nombre} {apellido}\nCorreo: {correo}\nEdad: {edad}\nTeléfono: {telefono}\nFecha y hora: {DateTime.Now:yyyy-MM-dd HH:mm:ss}";
+                _ = NuevoAPPwindowsforms.Services.TelegramService.EnviarMensajeAsync(mensaje);
             }
             catch (Exception ex)
             {

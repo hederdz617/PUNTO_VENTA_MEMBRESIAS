@@ -32,16 +32,28 @@ namespace NuevoAPPwindowsforms.Forms
             var ver = new Verification();
             var res = new Verification.Result();
             bool match = false;
-            for (int i = 0; i < AppData.MaxFingers; i++)
+            int clienteIdEncontrado = -1;
+            // Buscar en base de datos la huella y obtener el ClienteId
+            using (var conn = Services.DatabaseService.GetConnection())
             {
-                if (Data.Templates[i] != null)
+                conn.Open();
+                var cmd = conn.CreateCommand();
+                cmd.CommandText = "SELECT ClienteId, Template FROM Huella";
+                using (var reader = cmd.ExecuteReader())
                 {
-                    ver.Verify(featureSet, Data.Templates[i], ref res);
-                    if (res.Verified)
+                    while (reader.Read())
                     {
-                        match = true;
-                        MessageBox.Show($"Huella verificada. Dedo: {i + 1}\nFAR: {res.FARAchieved}", "Verificación exitosa");
-                        break;
+                        int clienteId = reader.GetInt32(0);
+                        byte[] templateBytes = (byte[])reader[1];
+                        var templateDB = new DPFP.Template(new System.IO.MemoryStream(templateBytes));
+                        ver.Verify(featureSet, templateDB, ref res);
+                        if (res.Verified)
+                        {
+                            match = true;
+                            clienteIdEncontrado = clienteId;
+                            MessageBox.Show($"Huella verificada. Cliente ID: {clienteId}\nFAR: {res.FARAchieved}", "Verificación exitosa");
+                            break;
+                        }
                     }
                 }
             }
@@ -52,7 +64,13 @@ namespace NuevoAPPwindowsforms.Forms
             }
             Data.IsFeatureSetMatched = match;
             Data.FalseAcceptRate = res.FARAchieved;
+            Data.ClienteId = clienteIdEncontrado;
             Data.Update();
+            if (match)
+            {
+                this.DialogResult = DialogResult.OK;
+                this.Close();
+            }
         }
     }
 }

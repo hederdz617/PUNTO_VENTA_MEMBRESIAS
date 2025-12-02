@@ -158,7 +158,7 @@ namespace NuevoAPPwindowsforms.Forms
                 return;
             }
             MainForm.Instance?.OcultarVerificadorTray();
-            var form = new EnrollmentForm(_data, _ultimoEmpleadoId);
+            var form = new EnrollmentForm(_data, _ultimoEmpleadoId, true);
             form.ShowDialog();
             MainForm.Instance?.MostrarVerificadorTray();
         }
