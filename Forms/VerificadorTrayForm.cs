@@ -18,9 +18,14 @@ namespace NuevoAPPwindowsforms.Forms
         private string dbPath;
         private string connStr;
         private SerialPort arduinoPort;
+        private string _puertoSerial;
+        private int _baudrate;
 
         public VerificadorTrayForm()
         {
+            var config = NuevoAPPwindowsforms.Services.SerialConfigService.Load();
+            _puertoSerial = config.PuertoSerial;
+            _baudrate = config.Baudrate;
             dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "clientes.db");
             connStr = $"Data Source={dbPath};Version=3;";
             trayIcon = new NotifyIcon()
@@ -62,14 +67,14 @@ namespace NuevoAPPwindowsforms.Forms
             capture.StartCapture();
 
             // Inicializar puerto serie para el torniquete
-            arduinoPort = new SerialPort("COM9", 9600);
+            arduinoPort = new SerialPort(_puertoSerial, _baudrate);
             try
             {
                 arduinoPort.Open();
             }
             catch (Exception ex)
             {
-                trayIcon.ShowBalloonTip(3000, "Error Arduino", $"No se pudo abrir COM9: {ex.Message}", ToolTipIcon.Error);
+                trayIcon.ShowBalloonTip(3000, "Error Arduino", $"No se pudo abrir {_puertoSerial}: {ex.Message}", ToolTipIcon.Error);
             }
         }
 

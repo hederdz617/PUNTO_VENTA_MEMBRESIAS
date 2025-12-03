@@ -264,7 +264,7 @@ namespace NuevoAPPwindowsforms.Forms
                 }
                 string productos = string.Join(", ", productosList);
                 string mensaje = $"Venta registrada:\nCliente: {nombreCliente}\nProductos: {productos}\nTotal: ${total:F2}\nFecha y hora: {fechaVenta:yyyy-MM-dd HH:mm:ss}";
-                _ = NuevoAPPwindowsforms.Services.TelegramService.EnviarMensajeAsync(mensaje);
+                _ = NuevoAPPwindowsforms.Services.TelegramService.EnviarMensajeAGrupoAsync(mensaje, NuevoAPPwindowsforms.Services.TelegramService.ChatIdVenta);
                 lstCarrito.Items.Clear();
                 total = 0;
                 lblTotal.Text = "Total: $0.00";
