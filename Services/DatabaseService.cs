@@ -1,3 +1,4 @@
+
 using System;
 using System.Data.SQLite;
 using System.IO;
@@ -6,130 +7,9 @@ namespace NuevoAPPwindowsforms.Services
 {
     public static class DatabaseService
     {
-        private static readonly string DbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "clientes.db");
-        private static readonly string ConnectionString = $"Data Source={DbPath};Version=3;";
-
-        public static void InitializeDatabase()
-        {
-            if (!File.Exists(DbPath))
-            {
-                SQLiteConnection.CreateFile(DbPath);
-            }
-            using (var conn = new SQLiteConnection(ConnectionString))
-            {
-                conn.Open();
-                var cmd = conn.CreateCommand();
-                // Crear tablas si no existen
-                cmd.CommandText = @"
-CREATE TABLE IF NOT EXISTS Cliente (
-    Id INTEGER PRIMARY KEY AUTOINCREMENT,
-    Nombre TEXT,
-    Apellido TEXT,
-    Correo TEXT,
-    Edad INTEGER,
-    Telefono TEXT
-);
-CREATE TABLE IF NOT EXISTS Huella (
-    Id INTEGER PRIMARY KEY AUTOINCREMENT,
-    ClienteId INTEGER,
-    Dedo TEXT,
-    Template BLOB,
-    FOREIGN KEY (ClienteId) REFERENCES Cliente(Id)
-);
-CREATE TABLE IF NOT EXISTS Ventas (
-    Id INTEGER PRIMARY KEY AUTOINCREMENT,
-    Id_Cliente INTEGER,
-    Fecha TEXT,
-    Total_Venta REAL,
-    FOREIGN KEY (Id_Cliente) REFERENCES Cliente(Id)
-);
-CREATE TABLE IF NOT EXISTS Detalles_venta (
-    Id INTEGER PRIMARY KEY AUTOINCREMENT,
-    Id_Venta INTEGER,
-    Producto TEXT,
-    Precio REAL,
-    Fecha_Compra TEXT,
-    FOREIGN KEY (Id_Venta) REFERENCES Ventas(Id)
-);
-CREATE TABLE IF NOT EXISTS Membresias (
-    Id INTEGER PRIMARY KEY AUTOINCREMENT,
-    Id_Cliente INTEGER NOT NULL,
-    Fecha_Inicio TEXT NOT NULL,
-    Fecha_Fin TEXT NOT NULL,
-    Activo INTEGER NOT NULL DEFAULT 1,
-    FOREIGN KEY (Id_Cliente) REFERENCES Cliente(Id)
-);
-CREATE TABLE IF NOT EXISTS Empleado (
-    Id INTEGER PRIMARY KEY AUTOINCREMENT,
-    Nombre TEXT,
-    Apellido TEXT,
-    Correo TEXT,
-    Edad INTEGER,
-    Telefono TEXT
-);
-CREATE TABLE IF NOT EXISTS HuellaEmpleado (
-    Id INTEGER PRIMARY KEY AUTOINCREMENT,
-    EmpleadoId INTEGER,
-    Dedo TEXT,
-    Template BLOB,
-    FOREIGN KEY (EmpleadoId) REFERENCES Empleado(Id)
-);
-";
-                cmd.ExecuteNonQuery();
-            }
-        }
-
-        public static SQLiteConnection GetConnection()
-        {
-            return new SQLiteConnection(ConnectionString);
-        }
-
-        public static int InsertEmpleado(string nombre, string apellido, string correo, int edad, string telefono)
-        {
-            using (var conn = new SQLiteConnection(ConnectionString))
-            {
-                conn.Open();
-                var cmd = conn.CreateCommand();
-                cmd.CommandText = @"INSERT INTO Empleado (Nombre, Apellido, Correo, Edad, Telefono) VALUES (@nombre, @apellido, @correo, @edad, @telefono); SELECT last_insert_rowid();";
-                cmd.Parameters.AddWithValue("@nombre", nombre);
-                cmd.Parameters.AddWithValue("@apellido", apellido);
-                cmd.Parameters.AddWithValue("@correo", correo);
-                cmd.Parameters.AddWithValue("@edad", edad);
-                cmd.Parameters.AddWithValue("@telefono", telefono);
-                var result = cmd.ExecuteScalar();
-                return Convert.ToInt32(result);
-            }
-        }
-        public static int InsertCliente(string nombre, string apellido, string correo, int edad, string telefono)
-        {
-            using (var conn = new SQLiteConnection(ConnectionString))
-            {
-                conn.Open();
-                var cmd = conn.CreateCommand();
-                cmd.CommandText = @"INSERT INTO Cliente (Nombre, Apellido, Correo, Edad, Telefono) VALUES (@nombre, @apellido, @correo, @edad, @telefono); SELECT last_insert_rowid();";
-                cmd.Parameters.AddWithValue("@nombre", nombre);
-                cmd.Parameters.AddWithValue("@apellido", apellido);
-                cmd.Parameters.AddWithValue("@correo", correo);
-                cmd.Parameters.AddWithValue("@edad", edad);
-                cmd.Parameters.AddWithValue("@telefono", telefono);
-                return Convert.ToInt32(cmd.ExecuteScalar());
-            }
-        }
-
-        public static void InsertHuella(int clienteId, string dedo, byte[] template)
-        {
-            using (var conn = new SQLiteConnection(ConnectionString))
-            {
-                conn.Open();
-                var cmd = conn.CreateCommand();
-                cmd.CommandText = @"INSERT INTO Huella (ClienteId, Dedo, Template) VALUES (@clienteId, @dedo, @template);";
-                cmd.Parameters.AddWithValue("@clienteId", clienteId);
-                cmd.Parameters.AddWithValue("@dedo", dedo);
-                cmd.Parameters.AddWithValue("@template", template);
-                cmd.ExecuteNonQuery();
-            }
-        }
-
+        // Cadena de conexión centralizada
+        private static readonly string ConnectionString = "Data Source=clientes.db;Version=3;";
+        // Aquí van todos los métodos
         public static int InsertVenta(int idCliente, DateTime fecha, decimal totalVenta)
         {
             using (var conn = new SQLiteConnection(ConnectionString))
@@ -213,6 +93,22 @@ CREATE TABLE IF NOT EXISTS HuellaEmpleado (
             }
         }
 
+        public static void InsertMembresia(int idCliente, DateTime fechaInicio, string producto, DateTime fechaFin)
+        {
+            int activo = (DateTime.Now.Date >= fechaInicio.Date && DateTime.Now.Date <= fechaFin.Date) ? 1 : 0;
+            using (var conn = new SQLiteConnection(ConnectionString))
+            {
+                conn.Open();
+                var cmd = conn.CreateCommand();
+                cmd.CommandText = @"INSERT INTO Membresias (Id_Cliente, Fecha_Inicio, Fecha_Fin, Activo) VALUES (@idCliente, @fechaInicio, @fechaFin, @activo);";
+                cmd.Parameters.AddWithValue("@idCliente", idCliente);
+                cmd.Parameters.AddWithValue("@fechaInicio", fechaInicio.ToString("yyyy-MM-dd"));
+                cmd.Parameters.AddWithValue("@fechaFin", fechaFin.ToString("yyyy-MM-dd"));
+                cmd.Parameters.AddWithValue("@activo", activo);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
         public static (DateTime? FechaFin, bool Activo) GetMembresiaActiva(int idCliente)
         {
             using (var conn = new SQLiteConnection(ConnectionString))
@@ -279,6 +175,127 @@ CREATE TABLE IF NOT EXISTS HuellaEmpleado (
                 var cmd = conn.CreateCommand();
                 cmd.CommandText = @"INSERT INTO HuellaEmpleado (EmpleadoId, Dedo, Template) VALUES (@empleadoId, @dedo, @template);";
                 cmd.Parameters.AddWithValue("@empleadoId", empleadoId);
+                cmd.Parameters.AddWithValue("@dedo", dedo);
+                cmd.Parameters.AddWithValue("@template", template);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        // Métodos utilitarios y CRUD faltantes
+        public static SQLiteConnection GetConnection()
+        {
+            return new SQLiteConnection(ConnectionString);
+        }
+
+        public static void InitializeDatabase()
+        {
+            if (!File.Exists("clientes.db"))
+            {
+                SQLiteConnection.CreateFile("clientes.db");
+            }
+            using (var conn = new SQLiteConnection(ConnectionString))
+            {
+                conn.Open();
+                var cmd = conn.CreateCommand();
+                cmd.CommandText = @"
+CREATE TABLE IF NOT EXISTS Cliente (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    Nombre TEXT,
+    Apellido TEXT,
+    Correo TEXT,
+    Edad INTEGER,
+    Telefono TEXT
+);
+CREATE TABLE IF NOT EXISTS Huella (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ClienteId INTEGER,
+    Dedo TEXT,
+    Template BLOB,
+    FOREIGN KEY (ClienteId) REFERENCES Cliente(Id)
+);
+CREATE TABLE IF NOT EXISTS Ventas (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    Id_Cliente INTEGER,
+    Fecha TEXT,
+    Total_Venta REAL,
+    FOREIGN KEY (Id_Cliente) REFERENCES Cliente(Id)
+);
+CREATE TABLE IF NOT EXISTS Detalles_venta (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    Id_Venta INTEGER,
+    Producto TEXT,
+    Precio REAL,
+    Fecha_Compra TEXT,
+    FOREIGN KEY (Id_Venta) REFERENCES Ventas(Id)
+);
+CREATE TABLE IF NOT EXISTS Membresias (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    Id_Cliente INTEGER NOT NULL,
+    Fecha_Inicio TEXT NOT NULL,
+    Fecha_Fin TEXT NOT NULL,
+    Activo INTEGER NOT NULL DEFAULT 1,
+    FOREIGN KEY (Id_Cliente) REFERENCES Cliente(Id)
+);
+CREATE TABLE IF NOT EXISTS Empleado (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    Nombre TEXT,
+    Apellido TEXT,
+    Correo TEXT,
+    Edad INTEGER,
+    Telefono TEXT
+);
+CREATE TABLE IF NOT EXISTS HuellaEmpleado (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    EmpleadoId INTEGER,
+    Dedo TEXT,
+    Template BLOB,
+    FOREIGN KEY (EmpleadoId) REFERENCES Empleado(Id)
+);
+";
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public static int InsertCliente(string nombre, string apellido, string correo, int edad, string telefono)
+        {
+            using (var conn = new SQLiteConnection(ConnectionString))
+            {
+                conn.Open();
+                var cmd = conn.CreateCommand();
+                cmd.CommandText = @"INSERT INTO Cliente (Nombre, Apellido, Correo, Edad, Telefono) VALUES (@nombre, @apellido, @correo, @edad, @telefono); SELECT last_insert_rowid();";
+                cmd.Parameters.AddWithValue("@nombre", nombre);
+                cmd.Parameters.AddWithValue("@apellido", apellido);
+                cmd.Parameters.AddWithValue("@correo", correo);
+                cmd.Parameters.AddWithValue("@edad", edad);
+                cmd.Parameters.AddWithValue("@telefono", telefono);
+                return Convert.ToInt32(cmd.ExecuteScalar());
+            }
+        }
+
+        public static int InsertEmpleado(string nombre, string apellido, string correo, int edad, string telefono)
+        {
+            using (var conn = new SQLiteConnection(ConnectionString))
+            {
+                conn.Open();
+                var cmd = conn.CreateCommand();
+                cmd.CommandText = @"INSERT INTO Empleado (Nombre, Apellido, Correo, Edad, Telefono) VALUES (@nombre, @apellido, @correo, @edad, @telefono); SELECT last_insert_rowid();";
+                cmd.Parameters.AddWithValue("@nombre", nombre);
+                cmd.Parameters.AddWithValue("@apellido", apellido);
+                cmd.Parameters.AddWithValue("@correo", correo);
+                cmd.Parameters.AddWithValue("@edad", edad);
+                cmd.Parameters.AddWithValue("@telefono", telefono);
+                return Convert.ToInt32(cmd.ExecuteScalar());
+            }
+        }
+
+        public static void InsertHuella(int clienteId, string dedo, byte[] template)
+        {
+            using (var conn = new SQLiteConnection(ConnectionString))
+            {
+                conn.Open();
+                var cmd = conn.CreateCommand();
+                cmd.CommandText = @"INSERT INTO Huella (ClienteId, Dedo, Template) VALUES (@clienteId, @dedo, @template);";
+                cmd.Parameters.AddWithValue("@clienteId", clienteId);
                 cmd.Parameters.AddWithValue("@dedo", dedo);
                 cmd.Parameters.AddWithValue("@template", template);
                 cmd.ExecuteNonQuery();

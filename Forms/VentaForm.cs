@@ -18,9 +18,11 @@ namespace NuevoAPPwindowsforms.Forms
         private Label lblTotal;
         private decimal total = 0;
         private Label lblClienteSeleccionado;
+        private Label lblTelefonoCliente;
         private ComboBox cmbProducto;
         private Button btnVenta;
         private Button btnRevisarActivo;
+        private DateTimePicker dtpFechaInicio;
 
         public VentaForm()
         {
@@ -31,6 +33,7 @@ namespace NuevoAPPwindowsforms.Forms
             InitializeUI();
             CargarClientes("");
             btnVenta.Enabled = false;
+            if (dtpFechaInicio != null) dtpFechaInicio.Enabled = false;
         }
 
         private void InitializeUI()
@@ -51,14 +54,16 @@ namespace NuevoAPPwindowsforms.Forms
             btnSeleccionar.Click += BtnSeleccionar_Click;
 
             // Carrito de compras
-            Label lblCarrito = new Label { Text = "Carrito de compras:", Left = 400, Top = 20, Width = 150 };
-            lstCarrito = new ListBox { Left = 400, Top = 60, Width = 350, Height = 80 };
-            btnAgregarAlCarrito = new Button { Text = "Agregar producto", Left = 400, Top = 150, Width = 150 };
+            Label lblCarrito = new Label { Text = "Carrito de compras:", Left = 400, Top = 120, Width = 150 };
+            lstCarrito = new ListBox { Left = 400, Top = 150, Width = 350, Height = 80 };
+            btnAgregarAlCarrito = new Button { Text = "Agregar producto", Left = 400, Top = 240, Width = 150 };
             btnAgregarAlCarrito.Click += BtnAgregarAlCarrito_Click;
             lblTotal = new Label { Text = "Total: $0.00", Left = 400, Top = 200, Width = 200 };
 
             // Cliente seleccionado
-            lblClienteSeleccionado = new Label { Text = "Cliente: (ninguno)", Left = 400, Top = 0, Width = 350, Height = 20, Font = new System.Drawing.Font("Segoe UI", 10, System.Drawing.FontStyle.Bold) };
+            lblClienteSeleccionado = new Label { Text = "Cliente: (ninguno)", Left = 400, Top = 0, Width = 350, Height = 32, Font = new System.Drawing.Font("Segoe UI", 12, System.Drawing.FontStyle.Bold) };
+            lblTelefonoCliente = new Label { Text = "Teléfono: ", Left = 400, Top = 38, Width = 350, Height = 28, Font = new System.Drawing.Font("Segoe UI", 11) };
+
 
             // ComboBox de productos
             Label lblProducto = new Label { Text = "Producto:", Left = 570, Top = 270, Width = 70 };
@@ -69,7 +74,15 @@ namespace NuevoAPPwindowsforms.Forms
             btnEliminarDelCarrito = new Button { Text = "Eliminar producto", Left = 560, Top = 320, Width = 150 };
             btnEliminarDelCarrito.Click += BtnEliminarDelCarrito_Click;
 
-            btnVenta = new Button { Text = "Venta", Left = 670, Top = 10, Width = 80, Height = 35, Enabled = false };
+            btnVenta = new Button {
+                Text = "Venta",
+                Left = 400,
+                Top = lblTelefonoCliente.Top + lblTelefonoCliente.Height + 20,
+                Width = 180,
+                Height = 45,
+                Enabled = false,
+                Font = new System.Drawing.Font("Segoe UI", 14, System.Drawing.FontStyle.Bold)
+            };
             btnVenta.Click += BtnVenta_Click;
 
             btnRevisarActivo = new Button { Text = "Revisar Activo", Left = 140, Top = 140, Width = 100 };
@@ -89,11 +102,18 @@ namespace NuevoAPPwindowsforms.Forms
             this.Controls.Add(btnEliminarDelCarrito);
             this.Controls.Add(lblTotal);
             this.Controls.Add(lblClienteSeleccionado);
+            this.Controls.Add(lblTelefonoCliente);
             this.Controls.Add(lblProducto);
             this.Controls.Add(cmbProducto);
             this.Controls.Add(btnVenta);
             this.Controls.Add(btnRevisarActivo);
             this.Controls.Add(btnBuscarPorHuella);
+            // Colocar el calendario debajo del botón Agregar producto
+            Label lblFechaInicio = new Label { Text = "Fecha inicio:", Left = btnAgregarAlCarrito.Left, Top = btnAgregarAlCarrito.Top + btnAgregarAlCarrito.Height + 10, Width = 100 };
+            dtpFechaInicio = new DateTimePicker { Left = lblFechaInicio.Left + lblFechaInicio.Width + 10, Top = lblFechaInicio.Top - 2, Width = 120, Format = DateTimePickerFormat.Short };
+            dtpFechaInicio.Value = DateTime.Now;
+            this.Controls.Add(lblFechaInicio);
+            this.Controls.Add(dtpFechaInicio);
         }
 
         private class ClienteItem
@@ -134,13 +154,45 @@ namespace NuevoAPPwindowsforms.Forms
             {
                 _clienteSeleccionadoId = item.Id;
                 lblClienteSeleccionado.Text = $"Cliente: {item.NombreCompleto}";
+                // Buscar teléfono del cliente
+                string telefono = "";
+                using (var conn = Services.DatabaseService.GetConnection())
+                {
+                    conn.Open();
+                    var cmd = conn.CreateCommand();
+                    cmd.CommandText = "SELECT Telefono FROM Cliente WHERE Id = @id";
+                    cmd.Parameters.AddWithValue("@id", _clienteSeleccionadoId);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            telefono = reader["Telefono"].ToString();
+                        }
+                    }
+                }
+                lblTelefonoCliente.Text = $"Teléfono: {telefono}";
                 btnVenta.Enabled = true;
-                MessageBox.Show($"Cliente seleccionado con ID: {_clienteSeleccionadoId}", "Venta");
+                // Verificar membresía activa
+                var membresia = Services.DatabaseService.GetMembresiaActiva(_clienteSeleccionadoId);
+                if (dtpFechaInicio != null)
+                {
+                    if (membresia.FechaFin != null && membresia.Activo)
+                    {
+                        dtpFechaInicio.Enabled = false;
+                        MessageBox.Show($"El cliente ya tiene una membresía activa hasta: {membresia.FechaFin:yyyy-MM-dd}", "Membresía activa");
+                    }
+                    else
+                    {
+                        dtpFechaInicio.Enabled = true;
+                    }
+                }
                 // Aquí puedes continuar con la lógica de venta
             }
             else
             {
                 btnVenta.Enabled = false;
+                lblTelefonoCliente.Text = "Teléfono: ";
+                if (dtpFechaInicio != null) dtpFechaInicio.Enabled = false;
                 MessageBox.Show("Seleccione un cliente de la lista.", "Atención");
             }
         }
@@ -203,6 +255,24 @@ namespace NuevoAPPwindowsforms.Forms
             }
             try
             {
+                // Determinar la fecha de inicio a usar
+                DateTime fechaInicio;
+                var membresiaActiva = Services.DatabaseService.GetMembresiaActiva(_clienteSeleccionadoId);
+                if (membresiaActiva.FechaFin != null && membresiaActiva.Activo)
+                {
+                    // Si tiene membresía activa, sumar desde la fecha fin actual
+                    fechaInicio = membresiaActiva.FechaFin.Value.AddDays(1);
+                }
+                else if (dtpFechaInicio != null && dtpFechaInicio.Enabled)
+                {
+                    // Si no tiene membresía activa, usar la fecha seleccionada en el calendario
+                    fechaInicio = dtpFechaInicio.Value.Date;
+                }
+                else
+                {
+                    // Si el calendario está deshabilitado y no hay membresía activa, usar la fecha actual
+                    fechaInicio = DateTime.Now.Date;
+                }
                 var fechaVenta = DateTime.Now;
                 int idVenta = Services.DatabaseService.InsertVenta(_clienteSeleccionadoId, fechaVenta, total);
                 foreach (var item in lstCarrito.Items)
@@ -219,7 +289,7 @@ namespace NuevoAPPwindowsforms.Forms
                     }
                     Services.DatabaseService.InsertDetalleVenta(idVenta, producto, precio, fechaVenta);
                 }
-                // Insertar membresía automáticamente al realizar la venta
+                // Insertar membresía automáticamente al realizar la venta, usando la fecha de inicio seleccionada
                 string productoMembresia = "";
                 if (lstCarrito.Items.Count > 0)
                 {
@@ -228,7 +298,28 @@ namespace NuevoAPPwindowsforms.Forms
                     if (idx > 0)
                         productoMembresia = itemStr.Substring(0, idx).Trim();
                 }
-                Services.DatabaseService.InsertMembresia(_clienteSeleccionadoId, fechaVenta, productoMembresia);
+                // Calcular fecha fin según el producto
+                DateTime fechaFin = fechaInicio;
+                switch (productoMembresia)
+                {
+                    case "Mensualidad":
+                        fechaFin = fechaInicio.AddMonths(1);
+                        break;
+                    case "Quincena":
+                        fechaFin = fechaInicio.AddDays(15);
+                        break;
+                    case "Semana":
+                        fechaFin = fechaInicio.AddDays(7);
+                        break;
+                    case "Visita":
+                        fechaFin = fechaInicio.AddDays(1);
+                        break;
+                    default:
+                        fechaFin = fechaInicio.AddMonths(1);
+                        break;
+                }
+                // Insertar membresía con fecha de inicio y fin
+                Services.DatabaseService.InsertMembresia(_clienteSeleccionadoId, fechaInicio, productoMembresia, fechaFin);
                 // Consultar membresía activa y mostrar detalles
                 var membresia = Services.DatabaseService.GetMembresiaActiva(_clienteSeleccionadoId);
                 if (membresia.FechaFin != null && membresia.Activo)
@@ -263,7 +354,7 @@ namespace NuevoAPPwindowsforms.Forms
                     productosList.Add(item.ToString());
                 }
                 string productos = string.Join(", ", productosList);
-                string mensaje = $"Venta registrada:\nCliente: {nombreCliente}\nProductos: {productos}\nTotal: ${total:F2}\nFecha y hora: {fechaVenta:yyyy-MM-dd HH:mm:ss}";
+                string mensaje = $"Venta registrada:\nCliente: {nombreCliente}\nProductos: {productos}\nTotal: ${total:F2}\nFecha inicio: {fechaInicio:yyyy-MM-dd}\nFecha fin: {fechaFin:yyyy-MM-dd}\nFecha y hora venta: {fechaVenta:yyyy-MM-dd HH:mm:ss}";
                 _ = NuevoAPPwindowsforms.Services.TelegramService.EnviarMensajeAGrupoAsync(mensaje, NuevoAPPwindowsforms.Services.TelegramService.ChatIdVenta);
                 lstCarrito.Items.Clear();
                 total = 0;
