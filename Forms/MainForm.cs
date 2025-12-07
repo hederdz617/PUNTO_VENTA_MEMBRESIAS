@@ -68,7 +68,7 @@ namespace NuevoAPPwindowsforms.Forms
             };
             btnEditarCliente.Click += (s, e) => {
                 var input = Microsoft.VisualBasic.Interaction.InputBox("Ingrese la contraseña para editar clientes:", "Autenticación", "");
-                if (input != "contraseña123") // Cambiar 
+                if (input != "farma96mcn1") // Cambiar 
                 {
                     MessageBox.Show("Contraseña incorrecta.", "Acceso denegado");
                     return;
@@ -81,10 +81,22 @@ namespace NuevoAPPwindowsforms.Forms
                 }
             };
             btnEmpleados.Click += (s, e) => {
+                var input = Microsoft.VisualBasic.Interaction.InputBox("Ingrese la contraseña para acceder a empleados:", "Autenticación", "");
+                if (input != "farma96mcn1")
+                {
+                    MessageBox.Show("Contraseña incorrecta.", "Acceso denegado");
+                    return;
+                }
                 var form = new EmpleadosForm();
                 form.ShowDialog();
             };
             btnConfiguracion.Click += (s, e) => {
+                var input = Microsoft.VisualBasic.Interaction.InputBox("Ingrese la contraseña para acceder a configuración:", "Autenticación", "");
+                if (input != "farma96mcn1")
+                {
+                    MessageBox.Show("Contraseña incorrecta.", "Acceso denegado");
+                    return;
+                }
                 var form = new ConfiguracionForm(_data);
                 form.ShowDialog();
                 // Actualizar configuración después de cerrar

@@ -13,7 +13,7 @@ namespace NuevoAPPwindowsforms.Services
         // Agrega aquí los chat_id de cada grupo
         public static readonly string ChatIdRegistro = "-5011401284";
         public static readonly string ChatIdVenta = "-5011401284";
-        private static readonly string ChatId = "-487675243"; // Reemplaza por tu chat_id real
+        private static readonly string ChatId = "-4876752436"; // Reemplaza por tu chat_id real
 
         public static async Task EnviarMensajeAsync(string mensaje)
         {

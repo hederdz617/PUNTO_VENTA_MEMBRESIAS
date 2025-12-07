@@ -61,10 +61,10 @@ namespace NuevoAPPwindowsforms.Forms
 
         private bool EsTextoValido(string texto)
         {
-            // Solo letras mayúsculas/minúsculas sin acentos
+            // Permitir letras y espacios, sin acentos ni símbolos
             foreach (char c in texto)
             {
-                if (!((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')))
+                if (!(char.IsLetter(c) || c == ' '))
                     return false;
             }
             return true;
@@ -110,12 +110,12 @@ namespace NuevoAPPwindowsforms.Forms
             // Validación de nombre y apellido
             if (!EsTextoValido(nombre))
             {
-                MessageBox.Show("El nombre solo debe contener letras sin acentos ni símbolos.", "Validación");
+                MessageBox.Show("El nombre solo debe contener letras y espacios, sin acentos ni símbolos.", "Validación");
                 return;
             }
             if (!EsTextoValido(apellido))
             {
-                MessageBox.Show("El apellido solo debe contener letras sin acentos ni símbolos.", "Validación");
+                MessageBox.Show("El apellido solo debe contener letras y espacios, sin acentos ni símbolos.", "Validación");
                 return;
             }
             // Validación de correo
@@ -142,6 +142,7 @@ namespace NuevoAPPwindowsforms.Forms
                 int clienteId = Services.DatabaseService.InsertCliente(nombre, apellido, correo, edad, telefono);
                 _ultimoClienteId = clienteId;
                 btnEnrollar.Enabled = true;
+                btnGuardar.Enabled = false;
                 MessageBox.Show($"Cliente guardado con ID: {clienteId}. Ahora puede enrollar la huella.", "Registro exitoso");
                 // Enviar mensaje a Telegram (grupo de registro)
                 string mensaje = $"Nuevo cliente registrado:\nNombre: {nombre} {apellido}\nCorreo: {correo}\nEdad: {edad}\nTeléfono: {telefono}\nFecha y hora: {DateTime.Now:yyyy-MM-dd HH:mm:ss}";

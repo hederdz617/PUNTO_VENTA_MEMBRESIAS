@@ -208,11 +208,11 @@ namespace NuevoAPPwindowsforms.Forms
             decimal precio = 0;
             switch (producto)
             {
-                case "Mensualidad": precio = 400; break;
-                case "Quincena": precio = 250; break;
-                case "Semana": precio = 150; break;
+                case "Mensualidad": precio = 550; break;
+                case "Quincena": precio = 300; break;
+                case "Semana": precio = 200; break;
                 case "Visita": precio = 50; break;
-                default: precio = 100; break;
+                default: precio = 00; break;
             }
             lstCarrito.Items.Add($"{producto} - ${precio:F2}");
             total += precio;
